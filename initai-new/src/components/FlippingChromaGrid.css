@@ -1,0 +1,398 @@
+  .flipping-chroma-grid {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(var(--cols, 3), 320px);
+    grid-auto-rows: auto;
+    justify-content: center;
+    gap: 0.75rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+    box-sizing: border-box;
+    background: #03071e;
+
+    --x: 50%;
+    --y: 50%;
+    --r: 220px;
+  }
+
+  @media (max-width: 1124px) {
+    .flipping-chroma-grid {
+      grid-template-columns: repeat(auto-fit, minmax(320px, 320px));
+      gap: 0.5rem;
+      padding: 0.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .flipping-chroma-grid {
+      grid-template-columns: 320px;
+      gap: 0.75rem;
+      padding: 1rem;
+    }
+  }
+
+ .flipping-card-wrapper {
+  position: relative;
+  width: 320px;
+  cursor: pointer;
+  perspective: 1000px;
+  height: 360px;
+  pointer-events: auto;
+  transform-style: preserve-3d;
+}
+
+  .flipping-card-front,
+  .flipping-card-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid #03071e;
+    transition: border-color 0.3s ease;
+    background: var(--card-gradient);
+    background-color: #03071e;
+
+    --mouse-x: 50%;
+    --mouse-y: 50%;
+    --spotlight-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .flipping-card-front:hover,
+  .flipping-card-back:hover {
+    border-color: var(--card-border);
+  }
+
+  .flipping-card-front::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--mouse-x) var(--mouse-y), var(--spotlight-color), transparent 70%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 0;
+  }
+
+  .flipping-card-back::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--mouse-x) var(--mouse-y), var(--spotlight-color), transparent 70%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: -1;
+    display: none !important;
+  }
+
+  .flipping-card-front:hover::before {
+    opacity: 1;
+  }
+
+  .flipping-card-back:hover::before {
+    opacity: 0;
+  }
+
+  .chroma-img-wrapper {
+    position: relative;
+    z-index: 1;
+    padding: 10px;
+    box-sizing: border-box;
+    background: transparent;
+    transition: background 0.3s ease;
+    flex: 1;
+    min-height: 240px;
+  }
+
+  .chroma-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    display: block;
+  }
+
+  .chroma-info {
+    position: relative;
+    z-index: 1;
+    padding: 0.75rem 1rem;
+    color: #ffffff;
+    font-family: system-ui, sans-serif;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    row-gap: 0.25rem;
+    column-gap: 0.75rem;
+    background: linear-gradient(135deg, #03071e 0%, #1a0f3a 100%);
+    flex-shrink: 0;
+    margin-top: auto;
+  }
+
+  .chroma-info .role,
+  .chroma-info .handle {
+    color: #b0b0b0;
+  }
+
+  .chroma-info .name {
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  .chroma-info .role {
+    font-size: 0.875rem;
+    margin: 0;
+  }
+
+  .chroma-info .handle {
+    font-size: 0.75rem;
+    margin: 0;
+  }
+
+  .chroma-card-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    backdrop-filter: grayscale(1) brightness(0.78);
+    -webkit-backdrop-filter: grayscale(1) brightness(0.78);
+    background: rgba(0, 0, 0, 0.001);
+    border-radius: 20px;
+  }
+
+  .chroma-card-spotlight {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    border-radius: 20px;
+  }
+
+  /* Back Side - Social Grid */
+  .flipping-card-back {
+    pointer-events: none;
+    z-index: 10 !important;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .flipping-card-back > * {
+    pointer-events: none;
+    position: relative;
+  }
+
+  .flipping-card-back > .social-grid {
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 10;
+  }
+
+  .social-grid {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    gap: 0;
+    pointer-events: auto;
+  }
+
+  .social-row {
+    display: flex;
+    width: 100%;
+    height: 50%;
+    gap: 0;
+    pointer-events: auto;
+  }
+
+  .social-section {
+    position: relative;
+    z-index: 1000 !important;
+    pointer-events: auto !important;
+    isolation: isolate; /* Creates new stacking context */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 1rem;
+    margin: 0;
+    flex: 1;
+    transition: all 0.3s ease;
+  }
+
+  .social-section:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08));
+    color: var(--card-border, #ffffff);
+    z-index: 1001 !important;
+    transform: scale(1.05) !important;
+  }
+
+  .social-section:active {
+    transform: scale(0.95);
+  }
+
+  .social-icon {
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 1001 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    color: inherit;
+    transition: transform 0.3s ease;
+  }
+
+  .social-section:hover .social-icon {
+    transform: scale(1.1);
+  }
+
+  .social-label {
+    pointer-events: none !important; /* Let parent handle clicks */
+    font-size: 0.75rem;
+    text-align: center;
+    opacity: 0.9;
+    transition: opacity 0.3s ease;
+  }
+
+  .social-section:hover .social-label {
+    opacity: 1;
+  }
+
+  /* Global Overlay Effects */
+/* Cursor spotlight effect */
+.chroma-overlay {
+  --cursor-color: #ffffff;
+  mask-image: radial-gradient(
+    circle var(--r) at var(--x) var(--y),
+    transparent 0%,
+    transparent 15%,
+    rgba(0, 0, 0, 0.1) 30%,
+    rgba(0, 0, 0, 0.22) 45%,
+    rgba(0, 0, 0, 0.35) 60%,
+    rgba(0, 0, 0, 0.5) 75%,
+    rgba(0, 0, 0, 0.68) 88%,
+    white 100%
+  );
+  -webkit-mask-image: radial-gradient(
+    circle var(--r) at var(--x) var(--y),
+    transparent 0%,
+    transparent 15%,
+    rgba(0, 0, 0, 0.1) 30%,
+    rgba(0, 0, 0, 0.22) 45%,
+    rgba(0, 0, 0, 0.35) 60%,
+    rgba(0, 0, 0, 0.5) 75%,
+    rgba(0, 0, 0, 0.68) 88%,
+    white 100%
+  );
+  background: radial-gradient(
+    circle var(--r) at var(--x) var(--y),
+    var(--cursor-color) 0%,
+    transparent 90%
+  );
+  opacity: 0.8;
+  z-index: 5; /* Matches card z-index */
+}
+
+.chroma-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: 
+    border 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
+}
+
+.chroma-card.hover-effect,
+.chroma-card:hover {
+  border: 4px solid var(--card-color);
+  box-shadow: 
+    0 0 15px var(--card-color),
+    0 0 30px var(--card-color);
+  transform: scale(1.02);
+  z-index: 10;
+}
+
+  .chroma-fade {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    backdrop-filter: grayscale(1) brightness(0.78);
+    -webkit-backdrop-filter: grayscale(1) brightness(0.78);
+    background: rgba(0, 0, 0, 0.001);
+
+    mask-image: radial-gradient(
+      circle var(--r) at var(--x) var(--y),
+      white 0%,
+      white 15%,
+      rgba(255, 255, 255, 0.9) 30%,
+      rgba(255, 255, 255, 0.78) 45%,
+      rgba(255, 255, 255, 0.65) 60%,
+      rgba(255, 255, 255, 0.5) 75%,
+      rgba(255, 255, 255, 0.32) 88%,
+      transparent 100%
+    );
+    -webkit-mask-image: radial-gradient(
+      circle var(--r) at var(--x) var(--y),
+      white 0%,
+      white 15%,
+      rgba(255, 255, 255, 0.9) 30%,
+      rgba(255, 255, 255, 0.78) 45%,
+      rgba(255, 255, 255, 0.65) 60%,
+      rgba(255, 255, 255, 0.5) 75%,
+      rgba(255, 255, 255, 0.32) 88%,
+      transparent 100%
+    );
+
+    opacity: 1;
+    transition: opacity 0.25s ease;
+  }
+
+  /* Cursor spotlight effect */
+  .chroma-overlay {
+    --cursor-color: #ffffff;
+    mask-image: radial-gradient(
+      circle var(--r) at var(--x) var(--y),
+      transparent 0%,
+      transparent 15%,
+      rgba(0, 0, 0, 0.1) 30%,
+      rgba(0, 0, 0, 0.22) 45%,
+      rgba(0, 0, 0, 0.35) 60%,
+      rgba(0, 0, 0, 0.5) 75%,
+      rgba(0, 0, 0, 0.68) 88%,
+      white 100%
+    );
+    -webkit-mask-image: radial-gradient(
+      circle var(--r) at var(--x) var(--y),
+      transparent 0%,
+      transparent 15%,
+      rgba(0, 0, 0, 0.1) 30%,
+      rgba(0, 0, 0, 0.22) 45%,
+      rgba(0, 0, 0, 0.35) 60%,
+      rgba(0, 0, 0, 0.5) 75%,
+      rgba(0, 0, 0, 0.68) 88%,
+      white 100%
+    );
+    background: radial-gradient(
+      circle var(--r) at var(--x) var(--y),
+      var(--cursor-color) 0%,
+      transparent 90%
+    );
+    opacity: 0.8;
+    z-index: 5; /* Same as cards */
+  }
