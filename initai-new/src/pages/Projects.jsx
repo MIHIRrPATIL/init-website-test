@@ -6,6 +6,7 @@ import projectsMarkdown from '@/data/projects_22_to_24.md?raw';
 import FinalNavbar from '@/components/FinalNavbar';
 import FinalFooter from '@/components/FinalFooter';
 import { useEffect } from 'react';
+import LiquidEther from '@/components/LiquidEther';
 
 export default function ProjectsPage() {
   // Convert markdown to products array
@@ -44,8 +45,28 @@ export default function ProjectsPage() {
   
   return (
     <div className="relative bg-[#03071e] text-white">
+      {/* Liquid Ether Background - Full Page */}
+      <div className="fixed inset-0 z-0">
+        <LiquidEther
+          colors={["#5227FF", "#FF9FFC", "#B19EEF"]}
+          mouseForce={20}
+          cursorSize={100}
+          isViscous={false}
+          viscous={30}
+          iterationsViscous={32}
+          iterationsPoisson={32}
+          resolution={0.3}
+          isBounce={false}
+          autoDemo={true}
+          autoSpeed={0.5}
+          autoIntensity={2.2}
+          takeoverDuration={0.25}
+          autoResumeDelay={3000}
+          autoRampDuration={0.6}
+        />
+      </div>
       <FinalNavbar/>
-      <HeroParallax products={enhancedProducts} />
+      <HeroParallax className="z-50" products={enhancedProducts} />
       <FinalFooter/>
     </div>
   );
