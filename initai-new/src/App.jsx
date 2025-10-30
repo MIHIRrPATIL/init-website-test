@@ -7,6 +7,7 @@ import Events from './pages/Events'
 import Blogs from './pages/Blogs'
 import BlogDetail from './pages/BlogDetail'
 import Projects from './pages/Projects'
+import Achievements from './pages/Achievements' // Add this import
 
 function App() {
 
@@ -19,6 +20,7 @@ function App() {
         <Link to="/events"></Link>
         <Link to="/about"></Link>
         <Link to="/projects"></Link>
+        <Link to="/achievements"></Link> {/* Add this link */}
       </nav>
       <Routes>
         <Route path="/" element={<Landing />} />
@@ -27,6 +29,7 @@ function App() {
         <Route path="/events" element={<Events />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/projects" element={<Projects />} />
+        <Route path="/achievements" element={<Achievements />} /> {/* Add this route */}
         <Route path="/blogs/:id" element={<BlogDetail />} />
       </Routes>
     </>

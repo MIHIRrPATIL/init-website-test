@@ -26,6 +26,7 @@ const navItems = [
         ]
     },
     { name: "Our Projects", link: "/projects" },
+    { name: "Achievements", link: "/achievements" },
     { name: "The Team", link: "/team" },
     { name: "About us", link: "/about" },
 ];
