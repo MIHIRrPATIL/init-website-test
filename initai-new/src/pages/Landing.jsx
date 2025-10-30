@@ -98,7 +98,7 @@ export default function LandingPage() {
       </div>
 
         {/* Bento Grid with Animated Title */}
-        {/* <div className="py-16 bg-[#03071e]">
+        <div className="py-16 bg-[#03071e]">
           <div className="container mx-auto px-4">
             <BlurTextAnimation
               text="Exploring cutting-edge AI/ML projects developed by our talented committee members working at the forefront of technology"
@@ -109,7 +109,7 @@ export default function LandingPage() {
             />
             <ProjectsGrid />
           </div>
-        </div> */}
+        </div>
 
         {/* Testimonials at bottom with white arrows */}
         <section className="py-16 bg-[#03071e]">

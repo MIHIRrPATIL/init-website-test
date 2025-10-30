@@ -8,12 +8,8 @@ import {
   useScroll,
   useMotionValueEvent,
 } from "motion/react";
-
 import React, { useRef, useState } from "react";
-
-/* --------------------------------------------------------------------
-   Component Types – were removed because we are compiling plain JSX
--------------------------------------------------------------------- */
+import { useNavigate } from "react-router-dom";
 
 export const Navbar = ({ children, className }) => {
   const ref = useRef(null);
@@ -34,7 +30,6 @@ export const Navbar = ({ children, className }) => {
   return (
     <motion.div
       ref={ref}
-      // IMPORTANT: Change this to class of `fixed` if you want the navbar to be fixed
       className={cn("fixed inset-x-0 top-0 z-40 w-full", className)}
     >
       {React.Children.map(children, (child) =>
@@ -63,7 +58,7 @@ export const NavBody = ({ children, className, visible }) => {
         damping: 50,
       }}
       style={{
-        minWidth: "800px",
+        minWidth: "900px",
       }}
       className={cn(
         "relative z-[60] mx-auto hidden w-full max-w-7xl flex-row items-center justify-between self-start rounded-full bg-transparent px-4 py-2 lg:flex dark:bg-transparent",
@@ -77,8 +72,34 @@ export const NavBody = ({ children, className, visible }) => {
 };
 
 export const NavItems = ({ items, className, onItemClick }) => {
+  const navigate = useNavigate();
   const [hovered, setHovered] = useState(null);
   const [showDropdown, setShowDropdown] = useState(null);
+
+  const handleClick = (e, item) => {
+    if (item.link.startsWith('http') || item.link.startsWith('mailto:')) {
+      // External link - let default behavior happen
+      return;
+    }
+    
+    // Internal link - use React Router
+    e.preventDefault();
+    navigate(item.link);
+    if (onItemClick) onItemClick();
+  };
+
+  const handleDropdownClick = (e, dropdownItem) => {
+    if (dropdownItem.link.startsWith('http')) {
+      // External link - let default behavior happen
+      return;
+    }
+    
+    // Internal link - use React Router
+    e.preventDefault();
+    navigate(dropdownItem.link);
+    setShowDropdown(null);
+    if (onItemClick) onItemClick();
+  };
 
   return (
     <motion.div
@@ -101,8 +122,8 @@ export const NavItems = ({ items, className, onItemClick }) => {
           }}
         >
           <a
-            onClick={onItemClick}
-            className="relative px-4 py-2 text-neutral-600 dark:text-neutral-300 inline-block"
+            onClick={(e) => handleClick(e, item)}
+            className="relative px-4 py-2 text-neutral-600 dark:text-neutral-300 inline-block cursor-pointer"
             href={item.link}
           >
             {hovered === idx && (
@@ -131,9 +152,10 @@ export const NavItems = ({ items, className, onItemClick }) => {
                 <a
                   key={`dropdown-${idx}-${dIdx}`}
                   href={dropdownItem.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block px-4 py-2 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-gray-100 dark:hover:bg-neutral-700"
+                  onClick={(e) => handleDropdownClick(e, dropdownItem)}
+                  target={dropdownItem.link.startsWith('http') ? "_blank" : undefined}
+                  rel={dropdownItem.link.startsWith('http') ? "noopener noreferrer" : undefined}
+                  className="block px-4 py-2 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-gray-100 dark:hover:bg-neutral-700 cursor-pointer"
                 >
                   {dropdownItem.name}
                 </a>
@@ -211,24 +233,32 @@ export const MobileNavMenu = ({ children, className, isOpen, onClose }) => {
 
 export const MobileNavToggle = ({ isOpen, onClick }) => {
   return isOpen ? (
-    <IconX className="text-black dark:text-white" onClick={onClick} />
+    <IconX className="text-black dark:text-white cursor-pointer" onClick={onClick} />
   ) : (
-    <IconMenu2 className="text-black dark:text-white" onClick={onClick} />
+    <IconMenu2 className="text-black dark:text-white cursor-pointer" onClick={onClick} />
   );
 };
 
 export const NavbarLogo = () => {
+  const navigate = useNavigate();
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    navigate('/');
+  };
+
   return (
     <a
       href="/"
-      className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black"
+      onClick={handleClick}
+      className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black cursor-pointer"
     >
       <img
         src="/init_logo.jpg"
         alt="logo"
         width={30}
         height={30}
-        style = {{borderRadius: 10}}
+        style={{ borderRadius: 10 }}
       />
       <span className="font-medium text-black dark:text-white">DJ InIT.AI</span>
     </a>
@@ -237,12 +267,15 @@ export const NavbarLogo = () => {
 
 export const NavbarButton = ({
   href,
-  as: Tag = "a",
+  onClick,
+  as: Tag = "button",
   children,
   className,
   variant = "primary",
   ...props
 }) => {
+  const navigate = useNavigate();
+
   const baseStyles =
     "px-4 py-2 rounded-md bg-white button bg-white text-black text-sm font-bold relative cursor-pointer hover:-translate-y-0.5 transition duration-200 inline-block text-center";
 
@@ -255,13 +288,41 @@ export const NavbarButton = ({
       "bg-gradient-to-b from-blue-500 to-blue-700 text-white shadow-[0px_2px_0px_0px_rgba(255,255,255,0.3)_inset]",
   };
 
+  const handleClick = (e) => {
+    if (onClick) {
+      onClick(e);
+    } else if (href) {
+      if (href.startsWith('http') || href.startsWith('mailto:')) {
+        // External link - let default behavior happen
+        window.location.href = href;
+      } else {
+        // Internal link - use React Router
+        e.preventDefault();
+        navigate(href);
+      }
+    }
+  };
+
+  if (Tag === "a" && href) {
+    return (
+      <a
+        href={href}
+        onClick={handleClick}
+        className={cn(baseStyles, variantStyles[variant], className)}
+        {...props}
+      >
+        {children}
+      </a>
+    );
+  }
+
   return (
-    <Tag
-      href={href || undefined}
+    <button
+      onClick={handleClick}
       className={cn(baseStyles, variantStyles[variant], className)}
       {...props}
     >
       {children}
-    </Tag>
+    </button>
   );
 };

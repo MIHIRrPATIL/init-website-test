@@ -6,12 +6,39 @@ import { Modal, ModalTrigger, ModalBody, ModalContent, ModalFooter } from "./ani
 import { LinkPreview } from "./link-preview";
 
 export const HeroParallax = ({ products }) => {
-  const rows = [
-    products.slice(0, 5),
-    products.slice(5, 10),
-    products.slice(10, 15),
-    products.slice(15, 20)
-  ];
+  // Dynamically create rows based on available products
+  const createRows = (items) => {
+    const rows = [];
+    const itemsPerRow = 5;
+    
+    // If we have fewer items than itemsPerRow, duplicate them to fill the row
+    if (items.length < itemsPerRow) {
+      const duplicatedItems = [];
+      while (duplicatedItems.length < itemsPerRow) {
+        duplicatedItems.push(...items);
+      }
+      rows.push(duplicatedItems.slice(0, itemsPerRow));
+      return rows;
+    }
+    
+    // Create rows from available items
+    for (let i = 0; i < items.length; i += itemsPerRow) {
+      const row = items.slice(i, i + itemsPerRow);
+      if (row.length > 0) {
+        // If last row is incomplete, duplicate items to fill it
+        if (row.length < itemsPerRow) {
+          while (row.length < itemsPerRow) {
+            row.push(...items.slice(0, itemsPerRow - row.length));
+          }
+        }
+        rows.push(row);
+      }
+    }
+    
+    return rows;
+  };
+  
+  const rows = createRows(products);
   
   const ref = React.useRef(null);
   const { scrollYProgress } = useScroll({
@@ -19,32 +46,39 @@ export const HeroParallax = ({ products }) => {
     offset: ["start start", "end start"],
   });
 
-  const springConfig = { stiffness: 300, damping: 30, bounce: 100 };
+  // Smoother spring configuration
+  const springConfig = { stiffness: 100, damping: 25, mass: 0.5 };
   
-  const baseX = useSpring(useTransform(scrollYProgress, [0, 1], [0, 500]), springConfig);
-  const reverseX = useSpring(useTransform(scrollYProgress, [0, 1], [0, -500]), springConfig);
-  const rotateX = useSpring(useTransform(scrollYProgress, [0, 0.2], [15, 0]), springConfig);
-  const opacity = useSpring(useTransform(scrollYProgress, [0, 0.2], [0.2, 1]), springConfig);
-  const rotateZ = useSpring(useTransform(scrollYProgress, [0, 0.2], [20, 0]), springConfig);
-  const translateY = useSpring(useTransform(scrollYProgress, [0, 0.2], [-500, 300]), springConfig);
+  // Reduced parallax intensity for smoother effect
+  const baseX = useSpring(useTransform(scrollYProgress, [0, 1], [0, 300]), springConfig);
+  const reverseX = useSpring(useTransform(scrollYProgress, [0, 1], [0, -300]), springConfig);
+  
+  // Smoother initial animation
+  const rotateX = useSpring(useTransform(scrollYProgress, [0, 0.3], [15, 0]), springConfig);
+  const opacity = useSpring(useTransform(scrollYProgress, [0, 0.3], [0.4, 1]), springConfig);
+  const rotateZ = useSpring(useTransform(scrollYProgress, [0, 0.3], [15, 0]), springConfig);
+  const translateY = useSpring(useTransform(scrollYProgress, [0, 0.3], [-400, 200]), springConfig);
   
   return (
     <div
       ref={ref}
-      className="h-[320vh] py-20 overflow-hidden antialiased relative flex flex-col self-auto"
+      className="sm:h-[300vh] lg:h-[300vh] py-12 overflow-hidden antialiased relative flex flex-col self-auto"
     >
       <Header />
       <motion.div style={{ rotateX, rotateZ, translateY, opacity }}>
         {rows.map((row, i) => (
-          <div key={i} className="mb-16 w-full">
-            <div className="overflow-x-auto scrollbar-hide w-full px-4">
+          <div
+            key={i}
+            className={(i !== rows.length - 1 ? 'mb-16 ' : '') + 'w-full'}
+          >
+            <div className="overflow-x-auto scrollbar-hide w-full">
               <motion.div 
-                className="flex gap-8 w-max" 
+                className="flex gap-8 w-max px-16" 
                 style={{ x: i % 2 === 0 ? baseX : reverseX }}
               >
                 {row.map((product, j) => (
                   <ProductCard 
-                    key={product.title}
+                    key={`${product.title}-${i}-${j}`}
                     product={product}
                     style={{ translateZ: j % 2 === 0 ? -50 : -25 }}
                   />
@@ -63,7 +97,6 @@ const ProductCard = ({ product, style }) => {
   const [aspectRatio, setAspectRatio] = useState('aspect-[4/3]');
   
   useEffect(() => {
-    // Dynamically set aspect ratio based on image dimensions
     const img = new Image();
     img.src = product.thumbnail;
     img.onload = () => {
@@ -76,7 +109,7 @@ const ProductCard = ({ product, style }) => {
       <ModalTrigger asChild>
         <motion.div
           style={style}
-          className={`group/product ${aspectRatio} w-[300px] md:w-[400px] relative shrink-0 cursor-pointer`}
+          className={`group/product ${aspectRatio} w-[300px] md:w-[400px] sm:w-[600px] relative shrink-0 cursor-pointer`}
           onMouseEnter={() => setIsHover(true)}
           onMouseLeave={() => setIsHover(false)}
         >
@@ -90,7 +123,7 @@ const ProductCard = ({ product, style }) => {
           </div>
           
           <ProgressiveBlur
-            className="absolute inset-0 h-full w-full"
+            className="absolute inset-0 h-full rounded-xl w-full"
             blurIntensity={0.8}
             animate={isHover ? 'visible' : 'hidden'}
             variants={{
@@ -101,7 +134,7 @@ const ProductCard = ({ product, style }) => {
           />
           
           <motion.div
-            className="absolute inset-0 flex flex-col p-6 bg-gradient-to-t from-black/80 via-transparent to-transparent"
+            className="absolute inset-0 flex flex-col p-6 bg-gradient-to-t from-black/80 via-transparent to-transparent rounded-xl"
             animate={isHover ? 'visible' : 'hidden'}
             variants={{
               hidden: { opacity: 0 },
@@ -123,44 +156,48 @@ const ProductCard = ({ product, style }) => {
         </motion.div>
       </ModalTrigger>
       
-      <ModalBody className="fixed inset-0 z-50">
-        <ModalContent className="w-full h-full max-w-none bg-white dark:bg-neutral-900 p-4 md:p-8">
+      <ModalBody>
+        <ModalContent className="w-full h-full max-w-none p-4 md:p-8">
           <div className="container mx-auto h-full flex flex-col">
             <div className="grid lg:grid-cols-2 gap-8 flex-grow overflow-y-auto">
               <div className="h-full max-h-[50vh] lg:max-h-none flex items-center justify-center">
                 <img
                   src={product.thumbnail}
-                  className="max-w-full max-h-full object-contain rounded-lg"
+                  className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
                   alt={product.title}
                 />
               </div>
-              <div className="overflow-y-auto py-4">
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">{product.title}</h2>
-                <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-8 whitespace-pre-wrap">{product.problemStatement}</p>
-                <div className="mb-8 bg-gray-100 dark:bg-neutral-800 p-6 rounded-lg">
-                  <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-4">Team Members</h3>
-                  <ul className="space-y-2">
+              <div className="overflow-y-auto py-4 pr-4">
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                  {product.title}
+                </h2>
+                <p className="text-lg md:text-xl text-gray-200 mb-8 whitespace-pre-wrap leading-relaxed">
+                  {product.problemStatement}
+                </p>
+                <div className="mb-8 bg-white/5 backdrop-blur-sm border border-white/10 p-6 rounded-lg">
+                  <h3 className="text-xl font-semibold text-white mb-4">Team Members</h3>
+                  <ul className="space-y-3">
                     {product.teamMembers.map((member, i) => (
                       <li key={i} className="flex items-center gap-3">
-                        <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
-                        <span className="text-base text-gray-700 dark:text-gray-300">{member}</span>
+                        <span className="w-2 h-2 rounded-full bg-blue-400 shrink-0"></span>
+                        <span className="text-base text-gray-200">{member}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
               </div>
             </div>
-            <ModalFooter className="py-4 flex justify-center gap-4 md:gap-6 bg-white dark:bg-neutral-900 border-t border-gray-200 dark:border-neutral-800">
+            <ModalFooter className="py-4 flex justify-center gap-4 md:gap-6 border-t border-white/10 bg-black/30">
               <LinkPreview 
                 url={product.link} 
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 md:px-8 md:py-4 rounded-lg text-lg md:text-xl font-semibold transition-all"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 md:px-8 md:py-4 rounded-lg text-lg md:text-xl font-semibold transition-all shadow-lg hover:shadow-blue-500/50"
               >
                 Live Link
               </LinkPreview>
               {product.paperLink && (
                 <LinkPreview 
                   url={product.paperLink} 
-                  className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 md:px-8 md:py-4 rounded-lg text-lg md:text-xl font-semibold transition-all"
+                  className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-6 py-3 md:px-8 md:py-4 rounded-lg text-lg md:text-xl font-semibold transition-all border border-white/20"
                 >
                   Paper Link
                 </LinkPreview>

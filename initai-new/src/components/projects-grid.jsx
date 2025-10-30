@@ -1,53 +1,67 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ProgressiveBlur } from '@/components/progressiveBlur';
+import { Button } from '@/components/ui/button';
+import { GetStartedButton } from '@/components/ui/get-started-button';
+import { FaGithub } from 'react-icons/fa';
+import { FaFileAlt } from 'react-icons/fa';
 
 const ProjectsGrid = () => {
   const projects = [
     {
-      title: "AI Research Platform",
-      description: "Developed a cutting-edge research platform for machine learning experiments",
-      imageUrl: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1000&auto=format&fit=crop",
-      tags: ["Python", "TensorFlow"],
+      title: "Violent Action Recognition",
+      description: "Detecting violent behavior in videos using 3DCNN, ConvLSTM, and LRCN models. Compares ML approaches for public safety scenarios.",
+      imageUrl: "https://picsum.photos/600/400?random=1",
+      tags: ["Video Analytics", "Violence Detection", "Deep Learning"],
       size: "large",
       bgColor: "bg-white dark:bg-white border border-gray-100 dark:border-gray-200",
-      textColor: "text-black"
+      textColor: "text-black",
+      link: "https://github.com/your-repo/violent-action-recognition",
+      paperLink: "https://arxiv.org/abs/2301.00001"
     },
     {
-      title: "Model Deployment",
-      description: "Automated pipeline for deploying ML models to production",
-      imageUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop",
-      tags: ["Docker", "Kubernetes"],
+      title: "Fleet Analysis Using FedML",
+      description: "Federated ML risk-scoring for drivers, vehicles, routes & companies. Ensures privacy in transportation data analysis.",
+      imageUrl: "https://picsum.photos/600/400?random=2",
+      tags: ["Federated Learning", "Fleet Analytics", "Risk Prediction"],
       size: "medium",
       bgColor: "bg-gray-50 dark:bg-gray-50 border border-gray-200 dark:border-gray-300",
-      textColor: "text-gray-800"
+      textColor: "text-gray-800",
+      link: "https://github.com/your-repo/fleet-analysis-fedml",
+      paperLink: "https://arxiv.org/abs/2302.00002"
     },
     {
-      title: "Data Visualization",
-      description: "Interactive dashboards for exploring complex datasets",
-      imageUrl: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1000&auto=format&fit=crop",
-      tags: ["D3.js", "React"],
+      title: "Contextual Advertising in Live Streaming Videos",
+      description: "AI to place non-intrusive, content-relevant ads in live streams using neural networks and NLP techniques.",
+      imageUrl: "https://picsum.photos/600/400?random=3",
+      tags: ["Advertising", "NLP", "Live Streaming", "Deep Learning"],
       size: "small",
       bgColor: "bg-white dark:bg-white border border-gray-100 dark:border-gray-200",
-      textColor: "text-black"
+      textColor: "text-black",
+      link: "https://github.com/your-repo/contextual-advertising",
+      paperLink: "https://arxiv.org/abs/2303.00003"
     },
     {
-      title: "NN Optimization",
-      description: "Optimized deep learning models for edge devices",
-      imageUrl: "https://images.unsplash.com/photo-1522071901873-411886a10004?q=80&w=1000&auto=format&fit=crop",
-      tags: ["PyTorch", "ONNX"],
+      title: "Content Based Research Paper Recommendation",
+      description: "Method to recommend research papers using content features, titles, and abstracts. Enhances lit review searches.",
+      imageUrl: "https://picsum.photos/600/400?random=4",
+      tags: ["NLP", "Recommendation", "Academic Search"],
       size: "large",
       bgColor: "bg-gray-50 dark:bg-gray-50 border border-gray-200 dark:border-gray-300",
-      textColor: "text-gray-800"
+      textColor: "text-gray-800",
+      link: "https://github.com/your-repo/research-paper-recommendation",
+      paperLink: "https://arxiv.org/abs/2304.00004"
     },
     {
-      title: "ML Pipeline",
-      description: "End-to-end training system for machine learning",
-      imageUrl: "https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=1000&auto=format&fit=crop",
-      tags: ["Airflow", "MLflow"],
+      title: "Quality Inspection in Pharma and Metal Industries Using Computer Vision",
+      description: "YOLOv8 & CV for defect detection in pills/metal. Improves efficiency and reliability for quality inspection.",
+      imageUrl: "https://picsum.photos/600/400?random=5",
+      tags: ["Computer Vision", "YOLOv8", "Quality Inspection"],
       size: "small",
       bgColor: "bg-white dark:bg-white border border-gray-100 dark:border-gray-200",
-      textColor: "text-black"
+      textColor: "text-black",
+      link: "https://github.com/your-repo/quality-inspection",
+      paperLink: "https://arxiv.org/abs/2305.00005"
     }
   ];
 
@@ -61,7 +75,7 @@ const ProjectsGrid = () => {
 
   return (
     <div className="container py-12 bg-[#03071e] dark:bg-white">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 auto-rows-[250px]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-2 sm:px-4 auto-rows-[180px] sm:auto-rows-[220px] md:auto-rows-[250px] lg:auto-rows-[300px]">
         {projects.map((project, index) => {
           const [isHover, setIsHover] = useState(false);
           return (
@@ -80,7 +94,7 @@ const ProjectsGrid = () => {
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
             <ProgressiveBlur
-              className="pointer-events-none absolute bottom-0 left-0 h-[100%] w-full"
+              className="pointer-events-none absolute bottom-0 left-0 h-full w-full"
               blurIntensity={0.6}
               animate={isHover ? 'visible' : 'hidden'}
               variants={{
@@ -91,7 +105,7 @@ const ProjectsGrid = () => {
             />
             <div className="absolute inset-0 p-4 flex flex-col justify-end transition-all duration-500">
               <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                <h3 className={`text-lg group-hover:text-2xl font-bold ${project.textColor} group-hover:text-white transition-all duration-300`}>
+                <h3 className={`text-lg md:text-xl group-hover:text-xl md:group-hover:text-2xl font-bold ${project.textColor} group-hover:text-white transition-all duration-300`}>
                   {project.title}
                 </h3>
                 <p className={`text-transparent group-hover:text-gray-300 text-sm group-hover:text-base mt-1 transition-all duration-300 delay-100 ${project.textColor}`}>
@@ -104,11 +118,33 @@ const ProjectsGrid = () => {
                     </span>
                   ))}
                 </div>
+                {/* Muted action buttons */}
+                <div className="flex gap-2 my-2">
+                  {project.link && project.link !== '#' && (
+                    <a href={project.link} target="_blank" rel="noopener noreferrer">
+                      <Button size="sm" variant="secondary" className="rounded-full px-3 flex items-center gap-1 bg-white/50 backdrop-blur-md border border-white/20 text-neutral-800 shadow-sm hover:bg-white/50 active:scale-95 transition-all">
+                        <FaGithub className="text-lg" /> <span>GitHub</span>
+                      </Button>
+                    </a>
+                  )}
+                  {project.paperLink && (
+                    <a href={project.paperLink} target="_blank" rel="noopener noreferrer">
+                      <Button size="sm" variant="outline" className="rounded-full px-3 flex items-center gap-1 bg-white/50 backdrop-blur-md border border-white/20 text-neutral-800 shadow-sm hover:bg-white/50 active:scale-95 transition-all">
+                        <FaFileAlt className="text-md" /> <span>Paper</span>
+                      </Button>
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
           </motion.div>
           );
         })}
+      </div>
+      <div className="flex justify-center mt-8">
+        <a href="/projects" className="inline-block">
+          <GetStartedButton label="View All Projects"/>
+        </a>
       </div>
     </div>
   );

@@ -1,43 +1,152 @@
 // utils/projects.js
+/**
+ * Parses markdown in the standardized format:
+ * ## Number. Title
+ * **Problem Statement:**
+ * Description text
+ * 
+ * **Team Members:**
+ * - Member 1
+ * - Member 2
+ * 
+ * **Links:**
+ * - Live: url
+ * - Paper: url
+ * - Image: url
+ * 
+ * ---
+ */
+
 export function getProjectsFromMarkdown(markdownContent) {
+  if (!markdownContent || typeof markdownContent !== 'string') {
+    console.error('Invalid markdown content');
+    return [];
+  }
+
   const projects = [];
-  // Array of tech-related placeholder images
-  const placeholderImages = [
-    'https://picsum.photos/600/400?random=1&grayscale&blur=1', // First row
-    'https://picsum.photos/600/400?random=2&grayscale&blur=2',
-    'https://picsum.photos/600/400?random=3&grayscale&blur=3',
-    'https://picsum.photos/600/400?random=4&grayscale&blur=4',
-    'https://picsum.photos/600/400?random=5&grayscale&blur=5',
-    'https://picsum.photos/600/400?random=6&sepia', // Second row
-    'https://picsum.photos/600/400?random=7&sepia',
-    'https://picsum.photos/600/400?random=8&sepia',
-    'https://picsum.photos/600/400?random=9&sepia',
-    'https://picsum.photos/600/400?random=10&sepia',
-    'https://picsum.photos/600/400?random=11', // Third row
-    'https://picsum.photos/600/400?random=12',
-    'https://picsum.photos/600/400?random=13',
-    'https://picsum.photos/600/400?random=14',
-    'https://picsum.photos/600/400?random=15'
-  ];
-  const sections = markdownContent.split('## ').slice(1);
+  
+  // Default placeholder if no image provided
+  const defaultImage = 'https://picsum.photos/600/400?random=1';
+  
+  // Normalize line endings
+  const normalized = markdownContent.replace(/\r\n/g, '\n');
+  
+  // Split by horizontal rules (---) or by project headers
+  const sections = normalized.split(/(?=^##\s+\d+\.)/m).filter(s => s.trim());
   
   sections.forEach((section, index) => {
-    const titleMatch = section.match(/^\d+\. (.+)/);
-    if (!titleMatch) return;
+    // Skip if section doesn't start with ##
+    if (!section.trim().startsWith('##')) return;
     
-    const title = titleMatch[1];
-    const problemStatementMatch = section.match(/\*\*Problem Statement:\*\*([\s\S]+?)\*\*Team Members:\*\*/);
-    const teamMembersMatch = section.match(/\*\*Team Members:\*\*([\s\S]+?)(?:##|$)/);
-    
-    projects.push({
-      title,
-      thumbnail: placeholderImages[index % placeholderImages.length], // Cycle through images
-      link: '#',
-      problemStatement: problemStatementMatch ? problemStatementMatch[1].trim() : '',
-      teamMembers: teamMembersMatch ? 
-        teamMembersMatch[1].trim().split('\n').map(m => m.replace(/^- /, '').trim()) : []
-    });
+    try {
+      // Extract title
+      const titleMatch = section.match(/^##\s+\d+\.\s+(.+?)$/m);
+      if (!titleMatch) return;
+      const title = titleMatch[1].trim();
+      
+      // Extract problem statement
+      const psMatch = section.match(/\*\*Problem Statement:\*\*\s*([\s\S]+?)(?=\*\*Team Members:|\*\*Links:|$)/);
+      const problemStatement = psMatch ? psMatch[1].trim() : '';
+      
+      // Extract team members
+      const tmMatch = section.match(/\*\*Team Members:\*\*\s*([\s\S]+?)(?=\*\*Links:|---|\*\*|$)/);
+      let teamMembers = [];
+      
+      if (tmMatch) {
+        teamMembers = tmMatch[1]
+          .split('\n')
+          .map(line => line.trim())
+          .filter(line => line.startsWith('-'))
+          .map(line => line.replace(/^-\s*/, '').trim())
+          .filter(member => member.length > 0);
+      }
+      
+      // Extract links
+      const linksMatch = section.match(/\*\*Links:\*\*\s*([\s\S]+?)(?=---|$)/);
+      let liveLink = '#';
+      let paperLink = null;
+      let imageUrl = defaultImage;
+      
+      if (linksMatch) {
+        const linksSection = linksMatch[1];
+        
+        // Extract Live link
+        const liveMatch = linksSection.match(/[•\-*]\s*Live:\s*(.+?)$/m);
+        if (liveMatch) {
+          liveLink = liveMatch[1].trim();
+        }
+        
+        // Extract Paper link
+        const paperMatch = linksSection.match(/[•\-*]\s*Paper:\s*(.+?)$/m);
+        if (paperMatch) {
+          const paperUrl = paperMatch[1].trim();
+          if (paperUrl !== '#' && paperUrl !== '') {
+            paperLink = paperUrl;
+          }
+        }
+        
+        // Extract Image link
+        const imageMatch = linksSection.match(/[•\-*]\s*Image:\s*(.+?)$/m);
+        if (imageMatch) {
+          const imgUrl = imageMatch[1].trim();
+          if (imgUrl !== '#' && imgUrl !== '') {
+            imageUrl = imgUrl;
+          }
+        }
+      }
+      
+      projects.push({
+        title,
+        thumbnail: imageUrl,
+        link: liveLink,
+        problemStatement,
+        teamMembers,
+        paperLink
+      });
+      
+    } catch (error) {
+      console.error(`Error parsing project ${index}:`, error);
+    }
+  });
+  
+  console.log(`✅ Successfully parsed ${projects.length} projects`);
+  
+  // Log summary
+  projects.forEach((p, i) => {
+    console.log(`${i + 1}. ${p.title} - ${p.teamMembers.length} members`);
   });
   
   return projects;
+}
+
+// Helper to validate markdown format
+export function validateMarkdownFormat(markdownContent) {
+  const issues = [];
+  
+  const projectHeaders = (markdownContent.match(/^##\s+\d+\./gm) || []).length;
+  const problemStatements = (markdownContent.match(/\*\*Problem Statement:\*\*/g) || []).length;
+  const teamMembers = (markdownContent.match(/\*\*Team Members:\*\*/g) || []).length;
+  const links = (markdownContent.match(/\*\*Links:\*\*/g) || []).length;
+  
+  console.log('=== FORMAT VALIDATION ===');
+  console.log('Project headers (##):', projectHeaders);
+  console.log('Problem Statements:', problemStatements);
+  console.log('Team Members sections:', teamMembers);
+  console.log('Links sections:', links);
+  
+  if (projectHeaders !== problemStatements) {
+    issues.push(`Mismatch: ${projectHeaders} headers but ${problemStatements} problem statements`);
+  }
+  
+  if (projectHeaders !== teamMembers) {
+    issues.push(`Mismatch: ${projectHeaders} headers but ${teamMembers} team member sections`);
+  }
+  
+  if (issues.length > 0) {
+    console.warn('⚠️ Format issues found:', issues);
+  } else {
+    console.log('✅ Format looks good!');
+  }
+  
+  return { projectHeaders, problemStatements, teamMembers, links, issues };
 }
