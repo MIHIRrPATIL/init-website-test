@@ -162,7 +162,6 @@ function TrophyModel({ achievement, index, active, total }) {
 function AchievementScene({ achievements, currentIndex }) {
   return (
     <>
-      <LiquidEther baseColor="#4c1d95" midColor="#6d28d9" tipColor="#8b5cf6" />
       <ambientLight intensity={0.5} />
       <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
       
@@ -280,6 +279,8 @@ const AchievementCarousel = ({ achievements }) => {
     <div className="relative h-[90vh] w-full overflow-hidden" ref={containerRef}>
       {/* 3D Scene */}
       <div className="absolute inset-0">
+        {/* Background Ether effect */}
+        <LiquidEther baseColor="#4c1d95" midColor="#6d28d9" tipColor="#8b5cf6" />
         <Canvas shadows>
           <AchievementScene 
             achievements={achievements} 
@@ -287,8 +288,6 @@ const AchievementCarousel = ({ achievements }) => {
           />
         </Canvas>
       </div>
-      
-      {/* Scrolling text rows */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="flex space-x-4 animate-scroll-left-slow whitespace-nowrap py-4">
           {Array(10).fill().map((_, i) => (
